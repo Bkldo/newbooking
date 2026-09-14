@@ -1719,8 +1719,8 @@ window.$K = (function() {
         this._xhr.withCredentials = option.CORS;
         this._xhr.open(option.method, url, option.asynchronous);
         if (option.method == 'post') {
-          this._xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-          this._xhr.setRequestHeader('Accept', ajaxAccepts[option.Accept]);
+          // xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // Removed for CORS
+          // xhr.setRequestHeader('Accept', ajaxAccepts[option.Accept]); // Removed for CORS
           if (option.contentType && option.encoding) {
             this._xhr.setRequestHeader('Content-Type', option.contentType + '; charset=' + option.encoding);
           }
@@ -1804,8 +1804,8 @@ window.$K = (function() {
         var temp = this;
         xhr.open(option.method, url, true);
         if (option.method == 'post') {
-          xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-          xhr.setRequestHeader('Accept', ajaxAccepts[option.Accept]);
+          // xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // Removed for CORS
+          // xhr.setRequestHeader('Accept', ajaxAccepts[option.Accept]); // Removed for CORS
           if (option.contentType && option.encoding) {
             xhr.setRequestHeader('Content-Type', option.contentType + '; charset=' + option.encoding);
           }
