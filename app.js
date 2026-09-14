@@ -10,6 +10,15 @@ const App = {
     user: null,
 
     init: function() {
+        // ตั้งค่าภาษาไทยสำหรับปฏิทิน (gajax.js)
+        if (window.Date) {
+            Date.longMonthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            Date.shortMonthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            Date.longDayNames = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+            Date.dayNames = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+            Date.yearOffset = 543;
+        }
+
         // ตรวจสอบสถานะล็อกอิน
         this.checkLogin();
 
@@ -166,6 +175,12 @@ const App = {
                     const a = document.createElement('a');
                     a.id = 'room_' + room.id;
                     a.style.backgroundColor = room.color;
+                    a.style.color = '#fff';
+                    a.style.padding = '5px 15px';
+                    a.style.marginRight = '10px';
+                    a.style.borderRadius = '5px';
+                    a.style.display = 'inline-block';
+                    a.style.textDecoration = 'none';
                     a.textContent = room.name;
                     a.onclick = function() {
                         // เมื่อคลิกชื่อห้อง สามารถกรองหรือดูรายละเอียดห้องได้
