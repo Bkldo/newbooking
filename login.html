@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th" dir="ltr" class="smooth">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="favicon.ico">
+  <title>เข้าสู่ระบบ - ระบบจองห้องประชุม</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="skin/fonts.css">
+  <link rel="stylesheet" href="skin/gcss.css">
+  <link rel="stylesheet" href="skin/booking/style.css">
+  
+  <!-- JavaScript -->
+  <script src="js/gcss.js"></script>
+  <script src="js/common.js"></script>
+  <script src="app.js"></script>
+</head>
+
+<body class="responsive">
+  <div id="slidemenu_content">
+    <div class="wrapper bg_image bg_color" id="toTop">
+      <header class="header" id="scroll-to">
+        <div class="menu_wrapper menu_bg">
+          <nav id="topmenu" class="topmenu slidemenu">
+            <ul id="menu-container">
+              <li class="home"><a href="index.html"><span>หน้าหลัก</span></a></li>
+              <li class="login"><a href="login.html"><span>เข้าสู่ระบบ</span></a></li>
+            </ul>
+          </nav>
+        </div>
+        <a id="dark_mode" class="icon-contrast" title="Dark mode"></a>
+      </header>
+      
+      <div class="gcss-wrapper center">
+        <div id="logo" class="logo_color">
+          <h1><a href="index.html" title="ระบบจองห้องประชุม" class="icon-calendar">ระบบจองห้องประชุม</a></h1>
+          <h4>ระบบจองห้องประชุม พร้อมปฏิทินการจอง</h4>
+        </div>
+      </div>
+      
+      <div id="skip" class="gcss-wrapper clear">
+        <main id="content" class="border-color">
+            <section>
+                <header><h1 class="icon-signin">เข้าสู่ระบบ</h1></header>
+                <form id="login-form" class="setup_frm" onsubmit="App.login(event)">
+                  <fieldset>
+                    <legend><span>กรุณากรอกรายละเอียดเพื่อเข้าสู่ระบบ</span></legend>
+                    <div class="item">
+                      <label for="username">ชื่อผู้ใช้</label>
+                      <span class="g-input icon-user">
+                        <input type="text" name="username" id="username" required autofocus>
+                      </span>
+                    </div>
+                    <div class="item">
+                      <label for="password">รหัสผ่าน</label>
+                      <span class="g-input icon-password">
+                        <input type="password" name="password" id="password" required>
+                      </span>
+                    </div>
+                  </fieldset>
+                  <fieldset class="submit">
+                    <button type="submit" class="button save large icon-signin">เข้าสู่ระบบ</button>
+                    <div id="login-error" class="error hidden" style="color:red; margin-top:10px;"></div>
+                  </fieldset>
+                </form>
+              </section>
+        </main>
+      </div>
+    </div>
+    <footer class="footer">
+      <p class="copy">
+        Copyright 2023 © สำนักงานเขตบางคอแหลม <small>Migrated to Static HTML + Google Sheets</small>
+      </p>
+    </footer>
+  </div>
+  <a href="#scroll-to" class="scroller" title="scroll to top">^</a>
+</body>
+
+</html>

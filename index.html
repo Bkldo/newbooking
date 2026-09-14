@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th" dir="ltr" class="smooth">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="favicon.ico">
+  <title>ระบบจองห้องประชุม</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="skin/fonts.css">
+  <link rel="stylesheet" href="skin/gcss.css">
+  <link rel="stylesheet" href="skin/booking/style.css">
+  
+  <!-- JavaScript -->
+  <script src="js/gcss.js"></script>
+  <script src="js/common.js"></script>
+  <script src="app.js"></script>
+
+  <style>
+    /* CSS เพิ่มเติมสำหรับการทำ SPA */
+    .hidden { display: none !important; }
+  </style>
+</head>
+
+<body class="responsive">
+  <div id="slidemenu_content">
+    <div class="wrapper bg_image bg_color" id="toTop">
+      <header class="header" id="scroll-to">
+        <div class="menu_wrapper menu_bg">
+          <nav id="topmenu" class="topmenu slidemenu">
+            <ul id="menu-container">
+              <li class="home"><a href="index.html"><span>หน้าหลัก</span></a></li>
+              <li class="login" id="menu-login"><a href="login.html"><span>เข้าสู่ระบบ</span></a></li>
+              <li class="logout hidden" id="menu-logout"><a href="#" onclick="App.logout()"><span>ออกจากระบบ</span></a></li>
+            </ul>
+          </nav>
+        </div>
+        <a id="dark_mode" class="icon-contrast" title="Dark mode"></a>
+      </header>
+      
+      <div class="gcss-wrapper center">
+        <div id="logo" class="logo_color">
+          <h1><a href="index.html" title="ระบบจองห้องประชุม" class="icon-calendar">ระบบจองห้องประชุม</a></h1>
+          <h4>ระบบจองห้องประชุม พร้อมปฏิทินการจอง</h4>
+        </div>
+      </div>
+      
+      <div id="skip" class="gcss-wrapper clear">
+        <main id="content" class="border-color">
+          <!-- เนื้อหาหลักจะถูกโหลดมาใส่ตรงนี้ด้วย JS -->
+          <div id="main-content">
+            <div style="text-align: center; padding: 50px;">
+              <h2>กำลังโหลดข้อมูล...</h2>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <footer class="footer">
+      <p class="copy">
+        Copyright 2023 © สำนักงานเขตบางคอแหลม <small>Migrated to Static HTML + Google Sheets</small>
+      </p>
+    </footer>
+  </div>
+  <a href="#scroll-to" class="scroller" title="scroll to top">^</a>
+  
+  <!-- Template สำหรับหน้าปฏิทิน (Home) -->
+  <template id="tpl-home">
+    <section>
+      <header><h1 class="icon-calendar">ปฏิทินการจองห้องประชุม</h1></header>
+      <div class="setup_frm">
+        <div id="calendar-container">
+            <!-- ส่วนแสดงปฏิทินจำลอง -->
+            <div style="padding: 20px;">
+                <button id="btn-new-booking" class="button green icon-plus">จองห้องประชุม</button>
+                <hr>
+                <div id="reservation-list">
+                    <!-- รายการจองจะแสดงที่นี่ -->
+                    <p>กำลังดึงข้อมูลการจอง...</p>
+                </div>
+            </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <!-- Template สำหรับฟอร์มจอง -->
+  <template id="tpl-booking">
+    <section>
+      <header><h1 class="icon-write">จองห้องประชุม</h1></header>
+      <form id="booking-form" class="setup_frm" onsubmit="App.submitBooking(event)">
+        <fieldset>
+          <legend><span>รายละเอียดการจอง</span></legend>
+          <div class="item">
+            <label for="room_id">ห้องประชุม</label>
+            <span class="g-input icon-office">
+              <select name="room_id" id="room_id" required>
+                <option value="">เลือกห้องประชุม</option>
+              </select>
+            </span>
+          </div>
+          <div class="item">
+            <label for="topic">หัวข้อการประชุม</label>
+            <span class="g-input icon-edit">
+              <input type="text" name="topic" id="topic" required>
+            </span>
+          </div>
+          <div class="item">
+            <label for="attendees">จำนวนผู้เข้าร่วม (คน)</label>
+            <span class="g-input icon-users">
+              <input type="number" name="attendees" id="attendees" required>
+            </span>
+          </div>
+          <div class="item">
+            <label for="begin">เวลาเริ่ม</label>
+            <span class="g-input icon-clock">
+              <input type="datetime-local" name="begin" id="begin" required>
+            </span>
+          </div>
+          <div class="item">
+            <label for="end">เวลาสิ้นสุด</label>
+            <span class="g-input icon-clock">
+              <input type="datetime-local" name="end" id="end" required>
+            </span>
+          </div>
+        </fieldset>
+        <fieldset class="submit">
+          <button type="submit" class="button save large icon-save">บันทึก</button>
+          <button type="button" class="button cancel large icon-cancel" onclick="App.navigate('home')">ยกเลิก</button>
+        </fieldset>
+      </form>
+    </section>
+  </template>
+
+  <script>
+    $G(window).Ready(function() {
+      // Initialize the app
+      if(typeof App !== 'undefined') {
+        App.init();
+      }
+    });
+  </script>
+</body>
+
+</html>
