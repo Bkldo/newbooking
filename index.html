@@ -152,10 +152,17 @@
   </template>
 
   <script>
-    $G(window).Ready(function() {
+    window.addEventListener('DOMContentLoaded', function() {
       // Initialize the app
-      if(typeof App !== 'undefined') {
-        App.init();
+      if (typeof App !== 'undefined') {
+        try {
+          App.init();
+        } catch(e) {
+          console.error("App.init failed:", e);
+          document.getElementById('main-content').innerHTML = '<h3 style="color:red;text-align:center;">เกิดข้อผิดพลาดในการโหลดระบบ (App.init)</h3><p style="text-align:center;">กรุณากด Ctrl+F5 เพื่อรีเฟรช</p>';
+        }
+      } else {
+        document.getElementById('main-content').innerHTML = '<h3 style="color:red;text-align:center;">ไม่พบไฟล์ app.js</h3><p style="text-align:center;">กรุณากด Ctrl+F5 เพื่อรีเฟรชแคชของเบราว์เซอร์</p>';
       }
     });
   </script>
