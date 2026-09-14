@@ -31,13 +31,16 @@ const App = {
     updateMenu: function() {
         const loginMenu = document.getElementById('menu-login');
         const logoutMenu = document.getElementById('menu-logout');
+        const bookingMenu = document.getElementById('menu-booking');
         
         if (this.user) {
             if (loginMenu) loginMenu.classList.add('hidden');
             if (logoutMenu) logoutMenu.classList.remove('hidden');
+            if (bookingMenu) bookingMenu.classList.remove('hidden');
         } else {
             if (loginMenu) loginMenu.classList.remove('hidden');
             if (logoutMenu) logoutMenu.classList.add('hidden');
+            if (bookingMenu) bookingMenu.classList.add('hidden');
         }
     },
 
@@ -61,11 +64,13 @@ const App = {
         if (template) {
             contentDiv.innerHTML = template.innerHTML;
             
-            // รันสคริปต์ที่เกี่ยวข้องกับหน้านั้นๆ
+            // รันสคริปต์ของแต่ละหน้า
             if (page === 'home') {
                 this.loadCalendar();
-            } else if (page === 'booking') {
-                this.loadRooms();
+            } else if (page === 'booking-rooms') {
+                this.loadRoomList();
+            } else if (page.startsWith('booking-form')) {
+                this.loadBookingForm();
             }
         } else {
             contentDiv.innerHTML = '<h2>ไม่พบหน้าที่ต้องการ</h2>';
@@ -166,7 +171,49 @@ const App = {
         }
     },
 
-    loadRooms: async function() {
+    loadRoomList: async function() {
+        if (!this.user) {
+            alert('กรุณาเข้าสู่ระบบก่อนทำรายการ');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const container = document.getElementById('room-list-container');
+        try {
+            const response = await fetch(API_URL + '?action=getRooms');
+            const rooms = await response.json();
+            
+            container.innerHTML = '';
+            
+            if (rooms.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px;">ไม่พบห้องประชุมที่เปิดใช้งาน</div>';
+                return;
+            }
+
+            rooms.forEach(room => {
+                if (room.published == 1) {
+                    const roomCard = document.createElement('div');
+                    roomCard.className = 'room-card'; // We might need to add CSS for this
+                    roomCard.innerHTML = `
+                        <div style="border: 1px solid #ccc; margin-bottom: 20px; padding: 15px; border-radius: 5px; background: #fff;">
+                            <h3 style="margin-top: 0; color: ${room.color || '#333'}">${room.name}</h3>
+                            <p><strong>ความจุ:</strong> ${room.seats || '-'} ที่นั่ง</p>
+                            <p><strong>รายละเอียด:</strong> ${room.detail || '-'}</p>
+                            <div style="margin-top: 15px;">
+                                <a href="#booking-form?room_id=${room.id}" class="button green icon-add">จองห้อง</a>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(roomCard);
+                }
+            });
+        } catch (error) {
+            console.error("Failed to load rooms", error);
+            container.innerHTML = '<div style="color:red; text-align: center; padding: 20px;">เกิดข้อผิดพลาดในการโหลดข้อมูลห้องประชุม</div>';
+        }
+    },
+
+    loadBookingForm: async function() {
         if (!this.user) {
             alert('กรุณาเข้าสู่ระบบก่อนทำรายการ');
             window.location.href = 'login.html';
@@ -174,21 +221,39 @@ const App = {
         }
 
         const roomSelect = document.getElementById('room_id');
+        const contactNameInput = document.getElementById('contact_name');
+        
+        if (contactNameInput && this.user && this.user.name) {
+            contactNameInput.value = this.user.name;
+        }
+
+        if (!roomSelect) return;
+
         try {
+            // Get room_id from hash if any
+            const hash = window.location.hash;
+            let selectedRoomId = '';
+            if (hash.includes('?room_id=')) {
+                selectedRoomId = hash.split('?room_id=')[1];
+            }
+
             const response = await fetch(API_URL + '?action=getRooms');
             const rooms = await response.json();
             
+            roomSelect.innerHTML = '<option value="">เลือกห้องประชุม</option>';
             rooms.forEach(room => {
                 if (room.published == 1) {
                     const option = document.createElement('option');
                     option.value = room.id;
                     option.text = room.name;
+                    if (room.id == selectedRoomId) {
+                        option.selected = true;
+                    }
                     roomSelect.appendChild(option);
                 }
             });
         } catch (error) {
-            console.error('Load rooms error:', error);
-            alert('ไม่สามารถโหลดข้อมูลห้องประชุมได้');
+            console.error("Failed to load rooms for booking form", error);
         }
     },
 
@@ -240,10 +305,18 @@ const App = {
         }
 
         const form = event.target;
+        
+        // Handle multiple checkboxes for equipment
+        const equipments = Array.from(form.querySelectorAll('input[name="equipment"]:checked'))
+                               .map(cb => cb.value)
+                               .join(',');
+
         const formData = new FormData(form);
+        // Overwrite equipment with joined string
+        formData.set('equipment', equipments);
+
         formData.append('action', 'saveReservation');
         formData.append('member_id', this.user.id);
-        
         const btn = form.querySelector('button[type="submit"]');
         btn.disabled = true;
         btn.innerText = 'กำลังบันทึก...';

@@ -31,7 +31,8 @@
         <div class="menu_wrapper menu_bg">
           <nav id="topmenu" class="topmenu slidemenu">
             <ul id="menu-container">
-              <li class="home"><a href="index.html"><span>หน้าหลัก</span></a></li>
+              <li class="home"><a href="#home"><span>หน้าหลัก</span></a></li>
+              <li class="booking" id="menu-booking" class="hidden"><a href="#booking-rooms"><span>จองห้องประชุม</span></a></li>
               <li class="login" id="menu-login"><a href="login.html"><span>เข้าสู่ระบบ</span></a></li>
               <li class="logout hidden" id="menu-logout"><a href="#" onclick="App.logout()"><span>ออกจากระบบ</span></a></li>
             </ul>
@@ -74,14 +75,14 @@
         <header><h3 class="icon-dashboard">Dashboard</h3></header>
         <div class="dashboard clear">
           <div class="card card-1" style="width: 50%; float: left; padding-right: 10px; box-sizing: border-box;">
-            <a class="card-item bg-blue" href="#booking">
+            <a class="card-item bg-blue" href="#booking-rooms">
               <span class="card-subitem icon-calendar">การจองวันนี้</span>
               <span class="card-subitem" id="dash-today">0</span>
               <span class="card-subitem">จองห้อง</span>
             </a>
           </div>
           <div class="card card-2" style="width: 50%; float: left; padding-left: 10px; box-sizing: border-box;">
-            <a class="card-item bg-olive" href="#booking">
+            <a class="card-item bg-olive" href="#booking-rooms">
               <span class="card-subitem icon-office">ห้องทั้งหมด</span>
               <span class="card-subitem" id="dash-rooms">0</span>
               <span class="card-subitem">ห้องประชุม</span>
@@ -104,7 +105,19 @@
   </template>
 
   <!-- Template สำหรับฟอร์มจอง -->
-  <template id="tpl-booking">
+  <!-- Template สำหรับหน้ารายการห้องประชุม (Room List) -->
+  <template id="tpl-booking-rooms">
+    <section>
+      <header><h1 class="icon-office">ห้องประชุม</h1></header>
+      <div id="room-list-container" class="setup_frm clear">
+        <!-- รายการห้องประชุมจะถูกโหลดมาใส่ตรงนี้ -->
+        <div style="text-align: center; padding: 20px;">กำลังโหลดข้อมูลห้องประชุม...</div>
+      </div>
+    </section>
+  </template>
+
+  <!-- Template สำหรับฟอร์มจอง -->
+  <template id="tpl-booking-form">
     <section>
       <header><h1 class="icon-write">จองห้องประชุม</h1></header>
       <form id="booking-form" class="setup_frm" onsubmit="App.submitBooking(event)">
@@ -131,6 +144,29 @@
             </span>
           </div>
           <div class="item">
+            <label for="department">แผนกที่จอง</label>
+            <span class="g-input icon-category">
+              <select name="department" id="department" required>
+                <option value="">เลือกแผนก</option>
+                <option value="1">บริหาร</option>
+                <option value="2">บุคคล</option>
+                <option value="3">ไอที</option>
+                <option value="4">บัญชี</option>
+              </select>
+            </span>
+          </div>
+          <div class="item">
+            <label for="purpose">วัตถุประสงค์</label>
+            <span class="g-input icon-category">
+              <select name="purpose" id="purpose" required>
+                <option value="">เลือกวัตถุประสงค์</option>
+                <option value="1">ประชุมภายใน</option>
+                <option value="2">ประชุมกับลูกค้า</option>
+                <option value="3">อบรมพนักงาน</option>
+              </select>
+            </span>
+          </div>
+          <div class="item">
             <label for="begin">เวลาเริ่ม</label>
             <span class="g-input icon-clock">
               <input type="datetime-local" name="begin" id="begin" required>
@@ -140,6 +176,36 @@
             <label for="end">เวลาสิ้นสุด</label>
             <span class="g-input icon-clock">
               <input type="datetime-local" name="end" id="end" required>
+            </span>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><span>อุปกรณ์ที่ต้องการ</span></legend>
+          <div class="item" id="equipment-list">
+             <!-- จะสร้าง Checkbox อัตโนมัติด้วย JS หรือ Hardcode ไว้ก่อนได้ -->
+             <label><input type="checkbox" name="equipment" value="1"> โปรเจคเตอร์</label><br>
+             <label><input type="checkbox" name="equipment" value="2"> ไมโครโฟน</label><br>
+             <label><input type="checkbox" name="equipment" value="3"> น้ำดื่ม</label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><span>ข้อมูลผู้ติดต่อ</span></legend>
+          <div class="item">
+            <label for="contact_name">ผู้ติดต่อ</label>
+            <span class="g-input icon-user">
+              <input type="text" name="contact_name" id="contact_name" readonly>
+            </span>
+          </div>
+          <div class="item">
+            <label for="contact_phone">เบอร์โทรศัพท์</label>
+            <span class="g-input icon-phone">
+              <input type="text" name="contact_phone" id="contact_phone">
+            </span>
+          </div>
+          <div class="item">
+            <label for="comment">หมายเหตุเพิ่มเติม</label>
+            <span class="g-input icon-file">
+              <textarea name="comment" id="comment" rows="3"></textarea>
             </span>
           </div>
         </fieldset>
