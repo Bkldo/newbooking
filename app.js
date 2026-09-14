@@ -115,42 +115,53 @@ const App = {
     },
 
     loadCalendar: async function() {
-        const listDiv = document.getElementById('reservation-list');
-        const btnNew = document.getElementById('btn-new-booking');
-        
-        // ถ้าล็อกอินแล้วให้แสดงปุ่มจอง
-        if (this.user) {
-            btnNew.style.display = 'inline-block';
-            btnNew.onclick = () => this.navigate('booking');
-        } else {
-            btnNew.style.display = 'none';
+        // อัปเดตสถิติ Dashboard
+        try {
+            const statsResp = await fetch(API_URL + '?action=getDashboardStats');
+            const stats = await statsResp.json();
+            document.getElementById('dash-today').textContent = stats.today || 0;
+            document.getElementById('dash-rooms').textContent = stats.rooms || 0;
+        } catch (e) {
+            console.error("Failed to load dashboard stats", e);
         }
 
+        // โหลดลิงก์ห้องเรียน
         try {
-            const response = await fetch(API_URL + '?action=getReservations');
-            const reservations = await response.json();
+            const roomsResp = await fetch(API_URL + '?action=getRooms');
+            const rooms = await roomsResp.json();
             
-            if (reservations.length === 0) {
-                listDiv.innerHTML = '<p>ไม่มีข้อมูลการจอง</p>';
-                return;
+            const roomLinks = document.getElementById('room_links');
+            if (roomLinks) {
+                roomLinks.innerHTML = '';
+                rooms.forEach(room => {
+                    const a = document.createElement('a');
+                    a.id = 'room_' + room.id;
+                    a.style.backgroundColor = room.color;
+                    a.textContent = room.name;
+                    a.onclick = function() {
+                        // เมื่อคลิกชื่อห้อง สามารถกรองหรือดูรายละเอียดห้องได้
+                        alert('แสดงรายละเอียดห้อง: ' + room.name);
+                    };
+                    roomLinks.appendChild(a);
+                });
             }
+        } catch(e) {
+            console.error("Failed to load rooms", e);
+        }
 
-            let html = '<table class="data-table"><thead><tr><th>หัวข้อ</th><th>เวลาเริ่ม</th><th>เวลาสิ้นสุด</th><th>ผู้จอง</th></tr></thead><tbody>';
-            reservations.forEach(r => {
-                html += `<tr>
-                    <td>${r.topic}</td>
-                    <td>${new Date(r.begin).toLocaleString('th-TH')}</td>
-                    <td>${new Date(r.end).toLocaleString('th-TH')}</td>
-                    <td>Member ID: ${r.member_id}</td>
-                </tr>`;
+        // เรนเดอร์ปฏิทินของ Kotchasan
+        if (window.Calendar && document.getElementById('booking-calendar')) {
+            var y = new Date().getFullYear();
+            new Calendar("booking-calendar", {
+                minYear: y - 5,
+                maxYear: y + 5,
+                url: API_URL + "?action=getCalendarData",
+                onclick: function(d) {
+                    // เมื่อคลิกเหตุการณ์ในปฏิทิน id จะเป็น "{id}_booking"
+                    const id = this.id.replace('_booking', '');
+                    App.showReservationDetail(id);
+                }
             });
-            html += '</tbody></table>';
-            
-            listDiv.innerHTML = html;
-            
-        } catch (error) {
-            console.error('Load calendar error:', error);
-            listDiv.innerHTML = '<p style="color:red">ไม่สามารถโหลดข้อมูลการจองได้ ตรวจสอบ API_URL ใน app.js</p>';
         }
     },
 
@@ -177,6 +188,44 @@ const App = {
         } catch (error) {
             console.error('Load rooms error:', error);
             alert('ไม่สามารถโหลดข้อมูลห้องประชุมได้');
+        }
+    },
+
+    showReservationDetail: async function(id) {
+        try {
+            // ในระบบจริง ควรจะสร้าง API สำหรับ getReservation(id)
+            // แต่เพื่อความรวดเร็ว ดึงทั้งหมดมาหาอันที่ต้องการ
+            const response = await fetch(API_URL + '?action=getReservations');
+            const reservations = await response.json();
+            const r = reservations.find(x => x.id == id);
+            
+            if (r) {
+                // สร้างเนื้อหา HTML สำหรับ Modal ให้เหมือนรูปที่ 3
+                let html = `
+                <div style="padding: 10px; min-width: 300px;">
+                    <h3 class="icon-file">รายละเอียดของการจอง</h3>
+                    <table class="border data-table" style="width: 100%; margin-top:10px;">
+                        <tbody>
+                            <tr><th style="width:30%; text-align:right; padding:5px;">หัวข้อ</th><td style="padding:5px;">${r.topic}</td></tr>
+                            <tr><th style="text-align:right; padding:5px;">วันที่จอง</th><td style="padding:5px;">${r.begin} ถึง ${r.end}</td></tr>
+                            <tr><th style="text-align:right; padding:5px;">ผู้เข้าร่วม</th><td style="padding:5px;">${r.attendees || '-'} คน</td></tr>
+                            <tr><th style="text-align:right; padding:5px;">ผู้จอง</th><td style="padding:5px;">${r.member_id}</td></tr>
+                            <tr><th style="text-align:right; padding:5px;">สถานะ</th><td style="padding:5px;">${r.status == 1 ? '<span class="icon-valid color-green">อนุมัติแล้ว</span>' : 'รออนุมัติ'}</td></tr>
+                        </tbody>
+                    </table>
+                </div>`;
+                
+                if (window.GModal) {
+                    new GModal().show(html);
+                } else {
+                    alert(`หัวข้อ: ${r.topic}\nเวลา: ${r.begin} - ${r.end}`);
+                }
+            } else {
+                alert('ไม่พบข้อมูลการจอง');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('ไม่สามารถโหลดข้อมูลได้');
         }
     },
 
