@@ -381,6 +381,20 @@ const App = {
         }
     },
 
+    // จัดรูปแบบวันที่/เวลาไทย เช่น "25 มิ.ย. 2569 เวลา 09:30 น."
+    formatThaiDateTime: function(dateStr) {
+        if (!dateStr) return '-';
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+        const day = d.getDate();
+        const month = months[d.getMonth()];
+        const year = d.getFullYear() + 543;
+        const hours = d.getHours().toString().padStart(2, '0');
+        const mins = d.getMinutes().toString().padStart(2, '0');
+        return `${day} ${month} ${year} เวลา ${hours}:${mins} น.`;
+    },
+
     formatBookingDate: function(beginStr, endStr) {
         if (!beginStr || !endStr) return '-';
         const b = new Date(beginStr);
@@ -599,8 +613,8 @@ const App = {
                     <td>${r.topic}</td>
                     <td>${roomMap[r.room_id] || 'ไม่ทราบห้อง'}</td>
                     <td>${r.contact_name || r.member_id}</td>
-                    <td>${r.begin}</td>
-                    <td>${r.end}</td>
+                    <td>${App.formatThaiDateTime(r.begin)}</td>
+                    <td>${App.formatThaiDateTime(r.end)}</td>
                     <td>${statusHtml}</td>
                     <td class="center">${actionHtml}</td>
                 `;
