@@ -474,6 +474,15 @@ const App = {
         // Overwrite equipment with joined string
         formData.set('equipment', equipments);
 
+        // Combine date and time for begin and end
+        const beginDate = form.querySelector('input[name="begin_date"]').value;
+        const beginTime = form.querySelector('input[name="begin_time"]').value;
+        const endDate = form.querySelector('input[name="end_date"]').value;
+        const endTime = form.querySelector('input[name="end_time"]').value;
+        
+        formData.set('begin', `${beginDate}T${beginTime}`);
+        formData.set('end', `${endDate}T${endTime}`);
+
         formData.append('action', 'saveReservation');
         formData.append('member_id', this.user.id);
         const btn = form.querySelector('button[type="submit"]');

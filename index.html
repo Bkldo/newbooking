@@ -161,92 +161,108 @@
     </section>
   </template>
 
-  <!-- Template สำหรับฟอร์มจอง -->
   <template id="tpl-booking-form">
     <section>
-      <header><h1 class="icon-write">จองห้องประชุม</h1></header>
+      <header><h1 class="icon-write">เพิ่ม การจอง</h1></header>
       <form id="booking-form" class="setup_frm" onsubmit="App.submitBooking(event)">
         <fieldset>
-          <legend><span>รายละเอียดการจอง</span></legend>
-          <div class="item">
-            <label for="room_id">ห้องประชุม</label>
-            <span class="g-input icon-office">
-              <select name="room_id" id="room_id" required>
-                <option value="">เลือกห้องประชุม</option>
-              </select>
-            </span>
+          <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+            <div class="item" style="flex: 1;">
+              <label for="room_id">ชื่อห้อง</label>
+              <span class="g-input icon-office">
+                <select name="room_id" id="room_id" required>
+                  <option value="">เลือกห้องประชุม</option>
+                </select>
+              </span>
+            </div>
+            <div class="item" style="flex: 1;">
+              <label for="topic">หัวข้อ</label>
+              <span class="g-input icon-edit">
+                <input type="text" name="topic" id="topic" required>
+              </span>
+            </div>
           </div>
-          <div class="item">
-            <label for="topic">หัวข้อการประชุม</label>
-            <span class="g-input icon-edit">
-              <input type="text" name="topic" id="topic" required>
-            </span>
-          </div>
-          <div class="item">
-            <label for="attendees">จำนวนผู้เข้าร่วม (คน)</label>
+          <div class="item" style="margin-bottom: 10px;">
+            <label for="attendees">จำนวนผู้เข้าร่วม</label>
             <span class="g-input icon-users">
               <input type="number" name="attendees" id="attendees" required>
             </span>
           </div>
-          <div class="item">
-            <label for="department">แผนกที่จอง</label>
-            <span class="g-input icon-category">
-              <select name="department" id="department" required>
-                <option value="">กำลังโหลดแผนก...</option>
-              </select>
-            </span>
+          <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+            <div class="item" style="flex: 1;">
+              <label for="contact_name">ชื่อผู้จอง</label>
+              <span class="g-input icon-user">
+                <input type="text" name="contact_name" id="contact_name" readonly style="background-color: #eee;">
+              </span>
+            </div>
+            <div class="item" style="flex: 1;">
+              <label for="contact_phone">โทรศัพท์</label>
+              <span class="g-input icon-phone">
+                <input type="text" name="contact_phone" id="contact_phone">
+              </span>
+            </div>
           </div>
-          <div class="item">
-            <label for="purpose">วัตถุประสงค์</label>
-            <span class="g-input icon-category">
-              <select name="purpose" id="purpose" required>
-                <option value="">กำลังโหลดวัตถุประสงค์...</option>
-              </select>
-            </span>
+          <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+            <div class="item" style="flex: 1;">
+              <label for="begin_date">วันที่เริ่มต้น</label>
+              <span class="g-input icon-calendar">
+                <input type="date" name="begin_date" id="begin_date" required>
+              </span>
+            </div>
+            <div class="item" style="flex: 1;">
+              <label for="begin_time">เวลาเริ่มต้น</label>
+              <span class="g-input icon-clock">
+                <input type="time" name="begin_time" id="begin_time" required>
+              </span>
+            </div>
           </div>
-          <div class="item">
-            <label for="begin">เวลาเริ่ม</label>
-            <span class="g-input icon-clock">
-              <input type="datetime-local" name="begin" id="begin" required>
-            </span>
+          <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+            <div class="item" style="flex: 1;">
+              <label for="end_date">วันที่สิ้นสุด</label>
+              <span class="g-input icon-calendar">
+                <input type="date" name="end_date" id="end_date" required>
+              </span>
+            </div>
+            <div class="item" style="flex: 1;">
+              <label for="end_time">เวลาสิ้นสุด</label>
+              <span class="g-input icon-clock">
+                <input type="time" name="end_time" id="end_time" required>
+              </span>
+            </div>
           </div>
-          <div class="item">
-            <label for="end">เวลาสิ้นสุด</label>
-            <span class="g-input icon-clock">
-              <input type="datetime-local" name="end" id="end" required>
-            </span>
+          <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+            <div class="item" style="flex: 1;">
+              <label for="purpose">ใช้สำหรับ</label>
+              <span class="g-input icon-category">
+                <select name="purpose" id="purpose" required>
+                  <option value="">กำลังโหลด...</option>
+                </select>
+              </span>
+            </div>
+            <div class="item" style="flex: 1;">
+              <label for="department">ฝ่ายที่ขอใช้</label>
+              <span class="g-input icon-category">
+                <select name="department" id="department" required>
+                  <option value="">กำลังโหลด...</option>
+                </select>
+              </span>
+            </div>
           </div>
-        </fieldset>
-        <fieldset>
-          <legend><span>อุปกรณ์ที่ต้องการ</span></legend>
-          <div class="item" id="equipment-list">
-             กำลังโหลดอุปกรณ์...
+          <div class="item" style="margin-bottom: 10px;">
+            <label>อุปกรณ์</label>
+            <div id="equipment-list" style="border: 1px solid #ddd; padding: 10px; border-radius: 4px; background: #fff; min-height: 40px;">
+              กำลังโหลดอุปกรณ์...
+            </div>
           </div>
-        </fieldset>
-        <fieldset>
-          <legend><span>ข้อมูลผู้ติดต่อ</span></legend>
-          <div class="item">
-            <label for="contact_name">ผู้ติดต่อ</label>
-            <span class="g-input icon-user">
-              <input type="text" name="contact_name" id="contact_name" readonly>
-            </span>
-          </div>
-          <div class="item">
-            <label for="contact_phone">เบอร์โทรศัพท์</label>
-            <span class="g-input icon-phone">
-              <input type="text" name="contact_phone" id="contact_phone">
-            </span>
-          </div>
-          <div class="item">
-            <label for="comment">หมายเหตุเพิ่มเติม</label>
+          <div class="item" style="margin-bottom: 10px;">
+            <label for="comment">อื่นๆ</label>
             <span class="g-input icon-file">
-              <textarea name="comment" id="comment" rows="3"></textarea>
+              <textarea name="comment" id="comment" rows="4"></textarea>
             </span>
           </div>
         </fieldset>
         <fieldset class="submit">
-          <button type="submit" class="button save large icon-save">บันทึก</button>
-          <button type="button" class="button cancel large icon-cancel" onclick="App.navigate('home')">ยกเลิก</button>
+          <button type="submit" class="button save large icon-save" style="background-color: #689F38;">บันทึก</button>
         </fieldset>
       </form>
     </section>
