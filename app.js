@@ -60,16 +60,17 @@ const App = {
             return;
         }
 
-        const template = document.getElementById('tpl-' + page);
+        const basePage = page.split('?')[0];
+        const template = document.getElementById('tpl-' + basePage);
         if (template) {
             contentDiv.innerHTML = template.innerHTML;
             
             // รันสคริปต์ของแต่ละหน้า
-            if (page === 'home') {
+            if (basePage === 'home') {
                 this.loadCalendar();
-            } else if (page === 'booking-rooms') {
+            } else if (basePage === 'booking-rooms') {
                 this.loadRoomList();
-            } else if (page.startsWith('booking-form')) {
+            } else if (basePage === 'booking-form') {
                 this.loadBookingForm();
             }
         } else {
@@ -86,14 +87,14 @@ const App = {
         
         try {
             // ใช้ POST request ส่ง username, password ไปตรวจสอบ
-            const formData = new FormData();
-            formData.append('action', 'login');
-            formData.append('username', username);
-            formData.append('password', password);
+            // เปลี่ยนจาก POST เป็น GET เพื่อป้องกันปัญหา CORS Redirect ของ Google Apps Script
+            const params = new URLSearchParams();
+            params.append('action', 'login');
+            params.append('username', username);
+            params.append('password', password);
 
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                body: formData
+            const response = await fetch(API_URL + '?' + params.toString(), {
+                method: 'GET'
             });
             
             const result = await response.json();
