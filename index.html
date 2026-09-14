@@ -34,6 +34,7 @@
               <li class="home"><a href="#home"><span>หน้าหลัก</span></a></li>
               <li class="booking hidden" id="menu-booking"><a href="#booking-rooms"><span>จองห้องประชุม</span></a></li>
               <li class="report hidden" id="menu-report"><a href="#booking-report"><span>รายงานการจอง</span></a></li>
+              <li class="member hidden" id="menu-member"><a href="#member"><span>รายชื่อสมาชิก</span></a></li>
               <li class="login" id="menu-login"><a href="login.html"><span>เข้าระบบ</span></a></li>
               <li class="logout hidden" id="menu-logout"><a href="#" onclick="App.logout()"><span>ออกจากระบบ</span></a></li>
             </ul>
@@ -242,6 +243,69 @@
           </tbody>
         </table>
       </div>
+    </section>
+  </template>
+
+  <!-- Template สำหรับรายชื่อสมาชิก -->
+  <template id="tpl-member">
+    <section>
+      <header><h1 class="icon-users">รายชื่อสมาชิก</h1></header>
+      <div class="tablebody">
+        <table class="data fullwidth">
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th>
+              <th>ชื่อผู้ใช้</th>
+              <th>เบอร์โทรศัพท์</th>
+              <th>สถานะ</th>
+              <th class="center">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="member-list-container">
+            <tr>
+              <td colspan="5" class="center">กำลังโหลดข้อมูล...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </template>
+
+  <!-- Template สำหรับฟอร์มแก้ไขโปรไฟล์ -->
+  <template id="tpl-editprofile">
+    <section>
+      <header><h1 class="icon-edit">แก้ไขข้อมูลสมาชิก</h1></header>
+      <form id="editprofile-form" class="setup_frm" onsubmit="App.submitProfileEdit(event)">
+        <input type="hidden" name="id" id="edit_id">
+        <fieldset>
+          <legend><span>ข้อมูลส่วนตัว</span></legend>
+          <div class="item">
+            <label for="edit_name">ชื่อ-นามสกุล</label>
+            <span class="g-input icon-user">
+              <input type="text" name="name" id="edit_name" required>
+            </span>
+          </div>
+          <div class="item">
+            <label for="edit_phone">เบอร์โทรศัพท์</label>
+            <span class="g-input icon-phone">
+              <input type="text" name="phone" id="edit_phone">
+            </span>
+          </div>
+          <div class="item" id="status-group">
+            <label for="edit_status">สถานะสมาชิก</label>
+            <span class="g-input icon-star0">
+              <select name="status" id="edit_status">
+                <option value="0">สมาชิกทั่วไป</option>
+                <option value="1">ผู้ดูแลระบบ</option>
+              </select>
+            </span>
+          </div>
+        </fieldset>
+        <fieldset class="submit">
+          <button type="submit" class="button save large icon-save">บันทึก</button>
+          <button type="button" class="button cancel large icon-cancel" onclick="App.navigate('member')">ยกเลิก</button>
+        </fieldset>
+      </form>
     </section>
   </template>
 

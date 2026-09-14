@@ -33,17 +33,20 @@ const App = {
         const logoutMenu = document.getElementById('menu-logout');
         const bookingMenu = document.getElementById('menu-booking');
         const reportMenu = document.getElementById('menu-report');
+        const memberMenu = document.getElementById('menu-member');
         
         if (this.user) {
             if (loginMenu) loginMenu.classList.add('hidden');
             if (logoutMenu) logoutMenu.classList.remove('hidden');
             if (bookingMenu) bookingMenu.classList.remove('hidden');
             if (reportMenu) reportMenu.classList.remove('hidden');
+            if (memberMenu) memberMenu.classList.remove('hidden');
         } else {
             if (loginMenu) loginMenu.classList.remove('hidden');
             if (logoutMenu) logoutMenu.classList.add('hidden');
             if (bookingMenu) bookingMenu.classList.add('hidden');
             if (reportMenu) reportMenu.classList.add('hidden');
+            if (memberMenu) memberMenu.classList.add('hidden');
         }
     },
 
@@ -77,6 +80,10 @@ const App = {
                 this.loadBookingForm();
             } else if (basePage === 'booking-report') {
                 this.loadBookingReport();
+            } else if (basePage === 'member') {
+                this.loadMemberList();
+            } else if (basePage === 'editprofile') {
+                this.loadEditProfile();
             }
         } else {
             contentDiv.innerHTML = '<h2>ไม่พบหน้าที่ต้องการ</h2>';
@@ -458,6 +465,146 @@ const App = {
         } catch (error) {
             console.error('Error updating status:', error);
             alert('ไม่สามารถอัปเดตสถานะได้');
+        }
+    },
+
+    loadMemberList: async function() {
+        if (!this.user) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const container = document.getElementById('member-list-container');
+        if (!container) return;
+
+        try {
+            const response = await fetch(API_URL + '?action=getUsers');
+            const users = await response.json();
+
+            container.innerHTML = '';
+            
+            const isAdmin = this.user.status == 1;
+            // ถ้าไม่ใช่แอดมิน ให้เห็นแค่ตัวเอง
+            const filteredUsers = isAdmin ? users : users.filter(u => u.id == this.user.id);
+            
+            if (filteredUsers.length === 0) {
+                container.innerHTML = '<tr><td colspan="5" class="center">ไม่พบข้อมูลสมาชิก</td></tr>';
+                return;
+            }
+
+            filteredUsers.forEach(u => {
+                const tr = document.createElement('tr');
+                const statusText = u.status == 1 ? '<span class="icon-star0 color-red">ผู้ดูแลระบบ</span>' : 'สมาชิกทั่วไป';
+                
+                tr.innerHTML = `
+                    <td>${u.name || '-'}</td>
+                    <td>${u.username}</td>
+                    <td>${u.phone || '-'}</td>
+                    <td>${statusText}</td>
+                    <td class="center">
+                        <a href="#editprofile?id=${u.id}" class="button green icon-edit" title="แก้ไข"></a>
+                    </td>
+                `;
+                container.appendChild(tr);
+            });
+            
+        } catch (error) {
+            console.error('Failed to load member list:', error);
+            container.innerHTML = '<tr><td colspan="5" class="center color-red">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+        }
+    },
+
+    loadEditProfile: async function() {
+        if (!this.user) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const hash = window.location.hash;
+        let editId = this.user.id;
+        
+        if (hash.includes('?id=')) {
+            editId = hash.split('?id=')[1];
+        }
+
+        // อนุญาตให้แอดมินแก้ของใครก็ได้, แต่ user ทั่วไปแก้ได้เฉพาะของตัวเอง
+        if (this.user.status != 1 && editId != this.user.id) {
+            alert('คุณไม่มีสิทธิ์แก้ไขข้อมูลของผู้อื่น');
+            window.location.hash = '#member';
+            return;
+        }
+
+        try {
+            const response = await fetch(API_URL + '?action=getUsers');
+            const users = await response.json();
+            const editUser = users.find(u => u.id == editId);
+            
+            if (editUser) {
+                document.getElementById('edit_id').value = editUser.id;
+                document.getElementById('edit_name').value = editUser.name || '';
+                document.getElementById('edit_phone').value = editUser.phone || '';
+                
+                const statusGroup = document.getElementById('status-group');
+                const statusSelect = document.getElementById('edit_status');
+                
+                if (this.user.status == 1) {
+                    statusGroup.style.display = 'block';
+                    statusSelect.value = editUser.status;
+                } else {
+                    // ปิดไม่ให้ผู้ใช้ทั่วไปเปลี่ยนสิทธิ์ตัวเองได้
+                    statusGroup.style.display = 'none';
+                    statusSelect.value = editUser.status;
+                }
+            } else {
+                alert('ไม่พบข้อมูลสมาชิก');
+                window.location.hash = '#member';
+            }
+        } catch (error) {
+            console.error('Failed to load edit profile:', error);
+            alert('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
+        }
+    },
+
+    submitProfileEdit: async function(event) {
+        event.preventDefault();
+        
+        if (!this.user) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const form = event.target;
+        const formData = new FormData(form);
+        formData.append('action', 'updateUser');
+        
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerText = 'กำลังบันทึก...';
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('อัปเดตข้อมูลสำเร็จ');
+                // ถ้าอัปเดตข้อมูลตัวเอง ให้เปลี่ยนชื่อบนหน้าเว็บด้วย
+                if (formData.get('id') == this.user.id) {
+                    this.user.name = formData.get('name');
+                }
+                this.navigate('member');
+            } else {
+                alert('เกิดข้อผิดพลาด: ' + result.message);
+                btn.disabled = false;
+                btn.innerText = 'บันทึก';
+            }
+        } catch (error) {
+            console.error('Edit profile error:', error);
+            alert('ไม่สามารถบันทึกข้อมูลได้');
+            btn.disabled = false;
+            btn.innerText = 'บันทึก';
         }
     }
 };
