@@ -15,6 +15,7 @@
   <!-- JavaScript -->
   <script src="js/gajax.js"></script>
   <script src="js/common.js"></script>
+  <script src="js/calendar.js"></script>
   <script src="app.js"></script>
 
   <style>
@@ -67,22 +68,39 @@
   
   <!-- Template สำหรับหน้าปฏิทิน (Home) -->
   <template id="tpl-home">
-    <section>
-      <header><h1 class="icon-calendar">ปฏิทินการจองห้องประชุม</h1></header>
-      <div class="setup_frm">
-        <div id="calendar-container">
-            <!-- ส่วนแสดงปฏิทินจำลอง -->
-            <div style="padding: 20px;">
-                <button id="btn-new-booking" class="button green icon-plus">จองห้องประชุม</button>
-                <hr>
-                <div id="reservation-list">
-                    <!-- รายการจองจะแสดงที่นี่ -->
-                    <p>กำลังดึงข้อมูลการจอง...</p>
-                </div>
-            </div>
+    <div class="setup_frm">
+      <!-- ส่วน Dashboard -->
+      <section>
+        <header><h3 class="icon-dashboard">Dashboard</h3></header>
+        <div class="dashboard clear">
+          <div class="card card-1" style="width: 50%; float: left; padding-right: 10px; box-sizing: border-box;">
+            <a class="card-item bg-blue" href="#booking">
+              <span class="card-subitem icon-calendar">การจองวันนี้</span>
+              <span class="card-subitem" id="dash-today">0</span>
+              <span class="card-subitem">จองห้อง</span>
+            </a>
+          </div>
+          <div class="card card-2" style="width: 50%; float: left; padding-left: 10px; box-sizing: border-box;">
+            <a class="card-item bg-olive" href="#booking">
+              <span class="card-subitem icon-office">ห้องทั้งหมด</span>
+              <span class="card-subitem" id="dash-rooms">0</span>
+              <span class="card-subitem">ห้องประชุม</span>
+            </a>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <!-- ส่วน ปฏิทิน -->
+      <section style="margin-top: 20px;">
+        <header><h3 class="icon-calendar">ปฏิทินการจอง ห้องประชุม</h3></header>
+        <div class="setup_frm">
+          <div id="booking-calendar"></div>
+          <div id="room_links" class="calendar_links clear">
+            <!-- ลิงก์ห้องจะถูกเพิ่มที่นี่ -->
+          </div>
+        </div>
+      </section>
+    </div>
   </template>
 
   <!-- Template สำหรับฟอร์มจอง -->
