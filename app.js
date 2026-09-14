@@ -363,26 +363,79 @@ const App = {
         }
     },
 
+    formatBookingDate: function(beginStr, endStr) {
+        if (!beginStr || !endStr) return '-';
+        const b = new Date(beginStr);
+        const e = new Date(endStr);
+        const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+        const bDay = b.getDate().toString().padStart(2, '0');
+        const bMonth = months[b.getMonth()];
+        const bYear = b.getFullYear() + 543;
+        const bTime = `${b.getHours().toString().padStart(2, '0')}:${b.getMinutes().toString().padStart(2, '0')} น.`;
+        
+        const eDay = e.getDate().toString().padStart(2, '0');
+        const eMonth = months[e.getMonth()];
+        const eYear = e.getFullYear() + 543;
+        const eTime = `${e.getHours().toString().padStart(2, '0')}:${e.getMinutes().toString().padStart(2, '0')} น.`;
+        
+        if (b.toDateString() === e.toDateString()) {
+            return `${bDay} ${bMonth} ${bYear} เวลา ${bTime} ถึง ${eTime}`;
+        } else {
+            return `${bDay} ${bMonth} ${bYear} เวลา ${bTime} ถึง ${eDay} ${eMonth} ${eYear} เวลา ${eTime}`;
+        }
+    },
+
     showReservationDetail: async function(id) {
         try {
-            // ในระบบจริง ควรจะสร้าง API สำหรับ getReservation(id)
-            // แต่เพื่อความรวดเร็ว ดึงทั้งหมดมาหาอันที่ต้องการ
-            const response = await fetch(API_URL + '?action=getReservations');
-            const reservations = await response.json();
+            // โหลดข้อมูลที่เกี่ยวข้องทั้งหมด
+            const [resResp, roomResp, userResp] = await Promise.all([
+                fetch(API_URL + '?action=getReservations'),
+                fetch(API_URL + '?action=getRooms'),
+                fetch(API_URL + '?action=getUsers')
+            ]);
+            const reservations = await resResp.json();
+            const rooms = await roomResp.json();
+            const users = await userResp.json();
+            
             const r = reservations.find(x => x.id == id);
             
             if (r) {
+                const room = rooms.find(x => x.id == r.room_id) || {};
+                const user = users.find(x => x.id == r.member_id) || {};
+                const approver = users.find(x => x.username == r.approver || x.id == r.approver) || {};
+                
+                const roomBadge = room.name ? `<span style="background-color: ${room.color || '#ccc'}; color: #fff; padding: 2px 8px; border-radius: 4px;">${room.name}</span>` : '-';
+                const statusBadge = r.status == 1 
+                    ? '<span style="background-color: #689F38; color: #fff; padding: 2px 8px; border-radius: 4px;">อนุมัติ</span>' 
+                    : '<span style="background-color: #ff9800; color: #fff; padding: 2px 8px; border-radius: 4px;">รออนุมัติ</span>';
+                
+                const formattedDate = this.formatBookingDate(r.begin, r.end);
+                let formattedApproveDate = '-';
+                if (r.approved_date && r.status == 1) {
+                   const ad = new Date(r.approved_date);
+                   const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+                   formattedApproveDate = `${ad.getDate().toString().padStart(2, '0')} ${months[ad.getMonth()]} ${ad.getFullYear() + 543} เวลา ${ad.getHours().toString().padStart(2, '0')}:${ad.getMinutes().toString().padStart(2, '0')} น.`;
+                }
+
                 // สร้างเนื้อหา HTML สำหรับ Modal ให้เหมือนรูปที่ 3
                 let html = `
-                <div style="padding: 10px; min-width: 300px;">
-                    <h3 class="icon-file">รายละเอียดของการจอง</h3>
-                    <table class="border data-table" style="width: 100%; margin-top:10px;">
+                <div style="padding: 10px; min-width: 300px; max-height: 80vh; overflow-y: auto;">
+                    <h3 class="icon-calendar" style="margin-top: 0; font-size: 1.2em;">รายละเอียดของ การจอง</h3>
+                    <table class="border data-table" style="width: 100%; margin-top:10px; border-collapse: collapse;">
                         <tbody>
-                            <tr><th style="width:30%; text-align:right; padding:5px;">หัวข้อ</th><td style="padding:5px;">${r.topic}</td></tr>
-                            <tr><th style="text-align:right; padding:5px;">วันที่จอง</th><td style="padding:5px;">${r.begin} ถึง ${r.end}</td></tr>
-                            <tr><th style="text-align:right; padding:5px;">ผู้เข้าร่วม</th><td style="padding:5px;">${r.attendees || '-'} คน</td></tr>
-                            <tr><th style="text-align:right; padding:5px;">ผู้จอง</th><td style="padding:5px;">${r.member_id}</td></tr>
-                            <tr><th style="text-align:right; padding:5px;">สถานะ</th><td style="padding:5px;">${r.status == 1 ? '<span class="icon-valid color-green">อนุมัติแล้ว</span>' : 'รออนุมัติ'}</td></tr>
+                            <tr><th style="width:30%; text-align:right; padding:8px; border:1px solid #eee; color:#666;">หัวข้อ</th><td style="padding:8px; border:1px solid #eee;">${r.topic || '-'}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">ชื่อห้อง</th><td style="padding:8px; border:1px solid #eee;">${roomBadge}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">อาคาร/สถานที่</th><td style="padding:8px; border:1px solid #eee;">${room.detail || '-'}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">จำนวนที่นั่ง</th><td style="padding:8px; border:1px solid #eee;">${room.seats ? room.seats + ' ที่นั่ง' : '-'}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">จำนวนผู้เข้าร่วม</th><td style="padding:8px; border:1px solid #eee;">${r.attendees || '-'}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">ชื่อผู้จอง</th><td style="padding:8px; border:1px solid #eee;">${user.name || r.member_id || '-'}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">โทรศัพท์</th><td style="padding:8px; border:1px solid #eee; color: #007bff;">${user.phone || '-'}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">วันที่จอง</th><td style="padding:8px; border:1px solid #eee;">${formattedDate}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">ใช้สำหรับ</th><td style="padding:8px; border:1px solid #eee;">${r.reason || '-'}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">อุปกรณ์</th><td style="padding:8px; border:1px solid #eee;">${r.comment || '-'}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">สถานะ</th><td style="padding:8px; border:1px solid #eee;">${statusBadge}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">ผู้ดำเนินการ</th><td style="padding:8px; border:1px solid #eee;">${approver.name || r.approver || '-'}</td></tr>
+                            <tr><th style="text-align:right; padding:8px; border:1px solid #eee; color:#666;">วันที่ดำเนินการ</th><td style="padding:8px; border:1px solid #eee;">${formattedApproveDate}</td></tr>
                         </tbody>
                     </table>
                 </div>`;
@@ -390,7 +443,7 @@ const App = {
                 if (window.GModal) {
                     new GModal().show(html);
                 } else {
-                    alert(`หัวข้อ: ${r.topic}\nเวลา: ${r.begin} - ${r.end}`);
+                    alert(`หัวข้อ: ${r.topic}\nเวลา: ${formattedDate}`);
                 }
             } else {
                 alert('ไม่พบข้อมูลการจอง');
