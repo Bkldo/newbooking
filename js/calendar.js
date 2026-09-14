@@ -450,7 +450,7 @@ Calendar.prototype = {
     var self = this,
       q = ['month=' + (floatval(d.getMonth()) + 1), 'year=' + d.getFullYear()];
     q = (this.params == '' ? '' : this.params + '&') + q.join('&');
-    new GAjax().send(this.url, q, function(xhr) {
+    new GAjax({method: 'get'}).send(this.url, q, function(xhr) {
       var ds = xhr.responseText.toJSON();
       self.cdate = d;
       self.events = ds || [];
