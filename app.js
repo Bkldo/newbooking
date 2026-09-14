@@ -34,6 +34,7 @@ const App = {
         const bookingMenu = document.getElementById('menu-booking');
         const reportMenu = document.getElementById('menu-report');
         const memberMenu = document.getElementById('menu-member');
+        const settingsMenu = document.getElementById('menu-settings');
         
         if (this.user) {
             if (loginMenu) loginMenu.classList.add('hidden');
@@ -41,12 +42,20 @@ const App = {
             if (bookingMenu) bookingMenu.classList.remove('hidden');
             if (reportMenu) reportMenu.classList.remove('hidden');
             if (memberMenu) memberMenu.classList.remove('hidden');
+            if (settingsMenu) {
+                if (this.user.status == 1) {
+                    settingsMenu.classList.remove('hidden');
+                } else {
+                    settingsMenu.classList.add('hidden');
+                }
+            }
         } else {
             if (loginMenu) loginMenu.classList.remove('hidden');
             if (logoutMenu) logoutMenu.classList.add('hidden');
             if (bookingMenu) bookingMenu.classList.add('hidden');
             if (reportMenu) reportMenu.classList.add('hidden');
             if (memberMenu) memberMenu.classList.add('hidden');
+            if (settingsMenu) settingsMenu.classList.add('hidden');
         }
     },
 
@@ -84,6 +93,8 @@ const App = {
                 this.loadMemberList();
             } else if (basePage === 'editprofile') {
                 this.loadEditProfile();
+            } else if (basePage === 'settings') {
+                this.loadSettings();
             }
         } else {
             contentDiv.innerHTML = '<h2>ไม่พบหน้าที่ต้องการ</h2>';
@@ -265,8 +276,40 @@ const App = {
                     roomSelect.appendChild(option);
                 }
             });
+
+            // Load Categories
+            const catResponse = await fetch(API_URL + '?action=getCategories');
+            const categories = await catResponse.json();
+
+            const deptSelect = document.getElementById('department');
+            const purposeSelect = document.getElementById('purpose');
+            const equipContainer = document.getElementById('equipment-list');
+            
+            if (deptSelect) deptSelect.innerHTML = '<option value="">เลือกแผนก</option>';
+            if (purposeSelect) purposeSelect.innerHTML = '<option value="">เลือกวัตถุประสงค์</option>';
+            if (equipContainer) equipContainer.innerHTML = '';
+
+            categories.forEach(c => {
+                if (c.type === 'department' && deptSelect) {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.text = c.topic;
+                    deptSelect.appendChild(opt);
+                } else if (c.type === 'purpose' && purposeSelect) {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.text = c.topic;
+                    purposeSelect.appendChild(opt);
+                } else if (c.type === 'equipment' && equipContainer) {
+                    const lbl = document.createElement('label');
+                    lbl.innerHTML = `<input type="checkbox" name="equipment" value="${c.id}"> ${c.topic}`;
+                    equipContainer.appendChild(lbl);
+                    equipContainer.appendChild(document.createElement('br'));
+                }
+            });
+            
         } catch (error) {
-            console.error("Failed to load rooms for booking form", error);
+            console.error("Failed to load data for booking form", error);
         }
     },
 
@@ -605,6 +648,63 @@ const App = {
             alert('ไม่สามารถบันทึกข้อมูลได้');
             btn.disabled = false;
             btn.innerText = 'บันทึก';
+        }
+    },
+
+    loadSettings: async function() {
+        if (!this.user || this.user.status != 1) {
+            alert('เฉพาะผู้ดูแลระบบเท่านั้น');
+            window.location.href = '#home';
+            return;
+        }
+
+        const container = document.getElementById('category-list-container');
+        if (!container) return;
+
+        try {
+            // Load Categories
+            const catResponse = await fetch(API_URL + '?action=getCategories');
+            const categories = await catResponse.json();
+            
+            // Load Rooms
+            const roomResponse = await fetch(API_URL + '?action=getRooms');
+            const rooms = await roomResponse.json();
+
+            container.innerHTML = '';
+            
+            // Render Rooms
+            rooms.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>ห้องประชุม</td>
+                    <td>${r.id}</td>
+                    <td>${r.name}</td>
+                    <td><span class="term" style="background-color:${r.color}; color:white; padding:2px 5px; border-radius:3px;">${r.color}</span></td>
+                `;
+                container.appendChild(tr);
+            });
+
+            // Render Categories
+            const typeLabels = {
+                'department': 'แผนก',
+                'purpose': 'วัตถุประสงค์',
+                'equipment': 'อุปกรณ์'
+            };
+
+            categories.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${typeLabels[c.type] || c.type}</td>
+                    <td>${c.id}</td>
+                    <td>${c.topic}</td>
+                    <td>${c.color ? `<span class="term" style="background-color:${c.color}; color:white; padding:2px 5px; border-radius:3px;">${c.color}</span>` : '-'}</td>
+                `;
+                container.appendChild(tr);
+            });
+            
+        } catch (error) {
+            console.error('Failed to load settings:', error);
+            container.innerHTML = '<tr><td colspan="4" class="center color-red">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
         }
     }
 };

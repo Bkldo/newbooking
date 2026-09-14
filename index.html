@@ -35,6 +35,7 @@
               <li class="booking hidden" id="menu-booking"><a href="#booking-rooms"><span>จองห้องประชุม</span></a></li>
               <li class="report hidden" id="menu-report"><a href="#booking-report"><span>รายงานการจอง</span></a></li>
               <li class="member hidden" id="menu-member"><a href="#member"><span>รายชื่อสมาชิก</span></a></li>
+              <li class="settings hidden" id="menu-settings"><a href="#settings"><span>ตั้งค่าระบบ</span></a></li>
               <li class="login" id="menu-login"><a href="login.html"><span>เข้าระบบ</span></a></li>
               <li class="logout hidden" id="menu-logout"><a href="#" onclick="App.logout()"><span>ออกจากระบบ</span></a></li>
             </ul>
@@ -149,11 +150,7 @@
             <label for="department">แผนกที่จอง</label>
             <span class="g-input icon-category">
               <select name="department" id="department" required>
-                <option value="">เลือกแผนก</option>
-                <option value="1">บริหาร</option>
-                <option value="2">บุคคล</option>
-                <option value="3">ไอที</option>
-                <option value="4">บัญชี</option>
+                <option value="">กำลังโหลดแผนก...</option>
               </select>
             </span>
           </div>
@@ -161,10 +158,7 @@
             <label for="purpose">วัตถุประสงค์</label>
             <span class="g-input icon-category">
               <select name="purpose" id="purpose" required>
-                <option value="">เลือกวัตถุประสงค์</option>
-                <option value="1">ประชุมภายใน</option>
-                <option value="2">ประชุมกับลูกค้า</option>
-                <option value="3">อบรมพนักงาน</option>
+                <option value="">กำลังโหลดวัตถุประสงค์...</option>
               </select>
             </span>
           </div>
@@ -184,10 +178,7 @@
         <fieldset>
           <legend><span>อุปกรณ์ที่ต้องการ</span></legend>
           <div class="item" id="equipment-list">
-             <!-- จะสร้าง Checkbox อัตโนมัติด้วย JS หรือ Hardcode ไว้ก่อนได้ -->
-             <label><input type="checkbox" name="equipment" value="1"> โปรเจคเตอร์</label><br>
-             <label><input type="checkbox" name="equipment" value="2"> ไมโครโฟน</label><br>
-             <label><input type="checkbox" name="equipment" value="3"> น้ำดื่ม</label>
+             กำลังโหลดอุปกรณ์...
           </div>
         </fieldset>
         <fieldset>
@@ -306,6 +297,34 @@
           <button type="button" class="button cancel large icon-cancel" onclick="App.navigate('member')">ยกเลิก</button>
         </fieldset>
       </form>
+    </section>
+  </template>
+
+  <!-- Template สำหรับตั้งค่าระบบ -->
+  <template id="tpl-settings">
+    <section>
+      <header><h1 class="icon-settings">ตั้งค่าระบบ</h1></header>
+      <div class="setup_frm">
+        <fieldset>
+          <legend><span>หมวดหมู่ (หมวดหมู่ห้อง, อุปกรณ์, แผนก)</span></legend>
+          <p class="comment">การตั้งค่าส่วนนี้จะดึงมาจาก Google Sheet <code>category</code> และ <code>rooms</code> (แสดงผลเพื่อเป็นข้อมูล ในเวอร์ชันนี้แนะนำให้แก้ไขผ่าน Google Sheet โดยตรง)</p>
+          <div class="tablebody" style="margin-top: 15px;">
+            <table class="data fullwidth">
+              <thead>
+                <tr>
+                  <th>ประเภท</th>
+                  <th>รหัส</th>
+                  <th>ชื่อหมวดหมู่</th>
+                  <th>สี</th>
+                </tr>
+              </thead>
+              <tbody id="category-list-container">
+                <tr><td colspan="4" class="center">กำลังโหลดข้อมูล...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </fieldset>
+      </div>
     </section>
   </template>
 
