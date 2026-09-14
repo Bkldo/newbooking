@@ -13,8 +13,8 @@ const App = {
         // ตรวจสอบสถานะล็อกอิน
         this.checkLogin();
 
-        // จัดการหน้าถ้าเป็น index.html
-        if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+        // ตรวจสอบว่าอยู่ในหน้า index.html หรือไม่ โดยดูจาก main-content
+        if (document.getElementById('main-content')) {
             window.addEventListener('hashchange', () => this.route());
             this.route();
         }
