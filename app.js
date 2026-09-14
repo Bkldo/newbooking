@@ -155,7 +155,8 @@ const App = {
             new Calendar("booking-calendar", {
                 minYear: y - 5,
                 maxYear: y + 5,
-                url: API_URL + "?action=getCalendarData",
+                url: API_URL,
+                params: "action=getCalendarData",
                 onclick: function(d) {
                     // เมื่อคลิกเหตุการณ์ในปฏิทิน id จะเป็น "{id}_booking"
                     const id = this.id.replace('_booking', '');
