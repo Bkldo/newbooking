@@ -555,15 +555,21 @@ const App = {
         if (!container) return;
 
         try {
-            // โหลดข้อมูลห้องเพื่อให้แสดงชื่อห้องได้
-            const roomsResp = await fetch(API_URL + '?action=getRooms');
+            // โหลดข้อมูลห้องและผู้ใช้เพื่อแสดงชื่อได้
+            const [roomsResp, resResp, usersResp] = await Promise.all([
+                fetch(API_URL + '?action=getRooms'),
+                fetch(API_URL + '?action=getReservations'),
+                fetch(API_URL + '?action=getUsers')
+            ]);
             const rooms = await roomsResp.json();
+            const reservations = await resResp.json();
+            const users = await usersResp.json();
+
             const roomMap = {};
             rooms.forEach(r => roomMap[r.id] = r.name);
 
-            // โหลดข้อมูลการจองทั้งหมด
-            const resResp = await fetch(API_URL + '?action=getReservations');
-            const reservations = await resResp.json();
+            const userMap = {};
+            users.forEach(u => userMap[u.id] = u.name);
 
             container.innerHTML = '';
             
@@ -612,7 +618,7 @@ const App = {
                 tr.innerHTML = `
                     <td>${r.topic}</td>
                     <td>${roomMap[r.room_id] || 'ไม่ทราบห้อง'}</td>
-                    <td>${r.contact_name || r.member_id}</td>
+                    <td>${r.contact_name || userMap[r.member_id] || r.member_id}</td>
                     <td>${App.formatThaiDateTime(r.begin)}</td>
                     <td>${App.formatThaiDateTime(r.end)}</td>
                     <td>${statusHtml}</td>
