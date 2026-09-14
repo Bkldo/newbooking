@@ -32,15 +32,18 @@ const App = {
         const loginMenu = document.getElementById('menu-login');
         const logoutMenu = document.getElementById('menu-logout');
         const bookingMenu = document.getElementById('menu-booking');
+        const reportMenu = document.getElementById('menu-report');
         
         if (this.user) {
             if (loginMenu) loginMenu.classList.add('hidden');
             if (logoutMenu) logoutMenu.classList.remove('hidden');
             if (bookingMenu) bookingMenu.classList.remove('hidden');
+            if (reportMenu) reportMenu.classList.remove('hidden');
         } else {
             if (loginMenu) loginMenu.classList.remove('hidden');
             if (logoutMenu) logoutMenu.classList.add('hidden');
             if (bookingMenu) bookingMenu.classList.add('hidden');
+            if (reportMenu) reportMenu.classList.add('hidden');
         }
     },
 
@@ -72,6 +75,8 @@ const App = {
                 this.loadRoomList();
             } else if (basePage === 'booking-form') {
                 this.loadBookingForm();
+            } else if (basePage === 'booking-report') {
+                this.loadBookingReport();
             }
         } else {
             contentDiv.innerHTML = '<h2>ไม่พบหน้าที่ต้องการ</h2>';
@@ -342,6 +347,117 @@ const App = {
             alert('ไม่สามารถบันทึกข้อมูลได้ (' + error.message + ')\nเนื่องจาก Google Apps Script อาจถูกบล็อกโดย CORS หรือตั้งค่าไม่ถูกต้อง โปรดตั้งค่าเป็น "Anyone" ตอน Deploy');
             btn.disabled = false;
             btn.innerText = 'บันทึก';
+        }
+    },
+
+    loadBookingReport: async function() {
+        if (!this.user) {
+            alert('กรุณาเข้าสู่ระบบก่อน');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const container = document.getElementById('report-list-container');
+        if (!container) return;
+
+        try {
+            // โหลดข้อมูลห้องเพื่อให้แสดงชื่อห้องได้
+            const roomsResp = await fetch(API_URL + '?action=getRooms');
+            const rooms = await roomsResp.json();
+            const roomMap = {};
+            rooms.forEach(r => roomMap[r.id] = r.name);
+
+            // โหลดข้อมูลการจองทั้งหมด
+            const resResp = await fetch(API_URL + '?action=getReservations');
+            const reservations = await resResp.json();
+
+            container.innerHTML = '';
+            
+            // กรองข้อมูล: ถ้าไม่ใช่แอดมิน ให้เห็นเฉพาะของตัวเอง
+            const isAdmin = this.user.status == 1;
+            const filteredRes = reservations.filter(r => isAdmin || r.member_id == this.user.id);
+            
+            if (filteredRes.length === 0) {
+                container.innerHTML = '<tr><td colspan="7" class="center">ไม่พบข้อมูลการจอง</td></tr>';
+                return;
+            }
+
+            // เรียงลำดับจากล่าสุดไปเก่าสุด
+            filteredRes.sort((a, b) => new Date(b.begin) - new Date(a.begin));
+
+            filteredRes.forEach(r => {
+                const tr = document.createElement('tr');
+                
+                let statusHtml = '';
+                if (r.status == 1) {
+                    statusHtml = '<span class="icon-valid color-green">อนุมัติแล้ว</span>';
+                } else if (r.status == 2) {
+                    statusHtml = '<span class="icon-invalid color-red">ไม่อนุมัติ</span>';
+                } else {
+                    statusHtml = '<span class="icon-waiting color-orange">รออนุมัติ</span>';
+                }
+
+                let actionHtml = '-';
+                if (isAdmin) {
+                    if (r.status == 0) {
+                        actionHtml = `
+                            <button type="button" class="button green icon-valid" onclick="App.updateReservationStatus('${r.id}', 1)" title="อนุมัติ"></button>
+                            <button type="button" class="button red icon-invalid" onclick="App.updateReservationStatus('${r.id}', 2)" title="ไม่อนุมัติ"></button>
+                        `;
+                    } else if (r.status == 1) {
+                         actionHtml = `
+                            <button type="button" class="button red icon-invalid" onclick="App.updateReservationStatus('${r.id}', 2)" title="ยกเลิกการอนุมัติ"></button>
+                        `;
+                    } else {
+                         actionHtml = `
+                            <button type="button" class="button green icon-valid" onclick="App.updateReservationStatus('${r.id}', 1)" title="อนุมัติใหม่"></button>
+                        `;
+                    }
+                }
+
+                tr.innerHTML = `
+                    <td>${r.topic}</td>
+                    <td>${roomMap[r.room_id] || 'ไม่ทราบห้อง'}</td>
+                    <td>${r.contact_name || r.member_id}</td>
+                    <td>${r.begin}</td>
+                    <td>${r.end}</td>
+                    <td>${statusHtml}</td>
+                    <td class="center">${actionHtml}</td>
+                `;
+                container.appendChild(tr);
+            });
+            
+        } catch (error) {
+            console.error('Failed to load booking report:', error);
+            container.innerHTML = '<tr><td colspan="7" class="center color-red">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+        }
+    },
+
+    updateReservationStatus: async function(id, status) {
+        if (!confirm('ยืนยันการเปลี่ยนสถานะการจอง?')) return;
+        
+        try {
+            const formData = new FormData();
+            formData.append('action', 'updateReservationStatus');
+            formData.append('id', id);
+            formData.append('status', status);
+            formData.append('approver', this.user.id);
+            
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('อัปเดตสถานะเรียบร้อย');
+                this.loadBookingReport();
+            } else {
+                alert('เกิดข้อผิดพลาด: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert('ไม่สามารถอัปเดตสถานะได้');
         }
     }
 };

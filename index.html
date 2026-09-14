@@ -32,8 +32,9 @@
           <nav id="topmenu" class="topmenu slidemenu">
             <ul id="menu-container">
               <li class="home"><a href="#home"><span>หน้าหลัก</span></a></li>
-              <li class="booking" id="menu-booking" class="hidden"><a href="#booking-rooms"><span>จองห้องประชุม</span></a></li>
-              <li class="login" id="menu-login"><a href="login.html"><span>เข้าสู่ระบบ</span></a></li>
+              <li class="booking hidden" id="menu-booking"><a href="#booking-rooms"><span>จองห้องประชุม</span></a></li>
+              <li class="report hidden" id="menu-report"><a href="#booking-report"><span>รายงานการจอง</span></a></li>
+              <li class="login" id="menu-login"><a href="login.html"><span>เข้าระบบ</span></a></li>
               <li class="logout hidden" id="menu-logout"><a href="#" onclick="App.logout()"><span>ออกจากระบบ</span></a></li>
             </ul>
           </nav>
@@ -214,6 +215,33 @@
           <button type="button" class="button cancel large icon-cancel" onclick="App.navigate('home')">ยกเลิก</button>
         </fieldset>
       </form>
+    </section>
+  </template>
+
+  <!-- Template สำหรับหน้ารายงาน/อนุมัติการจอง -->
+  <template id="tpl-booking-report">
+    <section>
+      <header><h1 class="icon-report">รายงานการจองห้องประชุม</h1></header>
+      <div class="tablebody">
+        <table class="data fullwidth">
+          <thead>
+            <tr>
+              <th>หัวข้อ</th>
+              <th>ห้องประชุม</th>
+              <th>ผู้จอง</th>
+              <th>วันเวลาที่เริ่ม</th>
+              <th>วันเวลาที่สิ้นสุด</th>
+              <th>สถานะ</th>
+              <th class="center">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="report-list-container">
+            <tr>
+              <td colspan="7" class="center">กำลังโหลดข้อมูล...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </template>
 
