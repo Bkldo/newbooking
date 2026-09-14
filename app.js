@@ -265,7 +265,7 @@ const App = {
 
     loadRoomList: async function() {
         if (!this.user) {
-            alert('กรุณาเข้าสู่ระบบก่อนทำรายการ');
+            await alert('กรุณาเข้าสู่ระบบก่อนทำรายการ');
             window.location.href = 'login.html';
             return;
         }
@@ -307,7 +307,7 @@ const App = {
 
     loadBookingForm: async function() {
         if (!this.user) {
-            alert('กรุณาเข้าสู่ระบบก่อนทำรายการ');
+            await alert('กรุณาเข้าสู่ระบบก่อนทำรายการ');
             window.location.href = 'login.html';
             return;
         }
@@ -490,7 +490,7 @@ const App = {
         event.preventDefault();
         
         if (!this.user) {
-            alert('Session expired. Please login again.');
+            await alert('Session expired. Please login again.');
             window.location.href = 'login.html';
             return;
         }
@@ -546,7 +546,7 @@ const App = {
 
     loadBookingReport: async function() {
         if (!this.user) {
-            alert('กรุณาเข้าสู่ระบบก่อน');
+            await alert('กรุณาเข้าสู่ระบบก่อน');
             window.location.href = 'login.html';
             return;
         }
@@ -650,7 +650,7 @@ const App = {
             
             const result = await response.json();
             if (result.status === 'success') {
-                alert('อัปเดตสถานะเรียบร้อย');
+                await alert('อัปเดตสถานะเรียบร้อย');
                 this.loadBookingReport();
             } else {
                 alert('เกิดข้อผิดพลาด: ' + result.message);
@@ -722,7 +722,7 @@ const App = {
 
         // อนุญาตให้แอดมินแก้ของใครก็ได้, แต่ user ทั่วไปแก้ได้เฉพาะของตัวเอง
         if (this.user.status != 1 && editId != this.user.id) {
-            alert('คุณไม่มีสิทธิ์แก้ไขข้อมูลของผู้อื่น');
+            await alert('คุณไม่มีสิทธิ์แก้ไขข้อมูลของผู้อื่น');
             window.location.hash = '#member';
             return;
         }
@@ -782,7 +782,7 @@ const App = {
             
             const result = await response.json();
             if (result.status === 'success') {
-                alert('อัปเดตข้อมูลสำเร็จ');
+                await alert('อัปเดตข้อมูลสำเร็จ');
                 // ถ้าอัปเดตข้อมูลตัวเอง ให้เปลี่ยนชื่อบนหน้าเว็บด้วย
                 if (formData.get('id') == this.user.id) {
                     this.user.name = formData.get('name');
@@ -803,7 +803,7 @@ const App = {
 
     loadSettings: async function() {
         if (!this.user || this.user.status != 1) {
-            alert('เฉพาะผู้ดูแลระบบเท่านั้น');
+            await alert('เฉพาะผู้ดูแลระบบเท่านั้น');
             window.location.href = '#home';
             return;
         }
