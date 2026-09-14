@@ -413,12 +413,7 @@ window.$K = (function() {
       return (floatval(sp[0]) * 60) + (floatval(sp[1] * 60) + floatval(sp[2]));
     }
   };
-  Function.prototype.bind = function(o) {
-    var __method = this;
-    return function() {
-      return __method.apply(o, arguments);
-    };
-  };
+  // Function.prototype.bind - ใช้ native bind ของ browser (ไม่ต้อง polyfill แล้ว)
   Date.prototype.fromTime = function(mktime) {
     return new Date(mktime * 1000);
   };
