@@ -42,30 +42,24 @@
       
       <div id="skip" class="gcss-wrapper clear">
         <main id="content" class="border-color">
-            <section>
-                <header><h1 class="icon-signin">เข้าสู่ระบบ</h1></header>
-                <form id="login-form" class="setup_frm" onsubmit="App.login(event)">
-                  <fieldset>
-                    <legend><span>กรุณากรอกรายละเอียดเพื่อเข้าสู่ระบบ</span></legend>
-                    <div class="item">
-                      <label for="username">ชื่อผู้ใช้</label>
-                      <span class="g-input icon-user">
-                        <input type="text" name="username" id="username" required autofocus>
-                      </span>
-                    </div>
-                    <div class="item">
-                      <label for="password">รหัสผ่าน</label>
-                      <span class="g-input icon-password">
-                        <input type="password" name="password" id="password" required>
-                      </span>
-                    </div>
-                  </fieldset>
-                  <fieldset class="submit">
-                    <button type="submit" class="button save large icon-signin">เข้าสู่ระบบ</button>
-                    <div id="login-error" class="error hidden" style="color:red; margin-top:10px;"></div>
-                  </fieldset>
-                </form>
-              </section>
+            <article id=login_div>
+              <form id=login_frm method=post autocomplete=off onsubmit="App.login(event)">
+                <h3><span class="icon-signin">เข้าสู่ระบบ</span></h3>
+                <aside class="center" id="login-error" style="color:red; display:none;"></aside>
+                <fieldset>
+                  <label class="g-input icon-user">
+                    <input type=text name=username id=login_username maxlength=255 placeholder="ชื่อผู้ใช้" title="ชื่อผู้ใช้" required autofocus>
+                  </label>
+                  <label class="g-input icon-password">
+                    <input class=showpassword type=password name=password id=login_password maxlength=50 placeholder="รหัสผ่าน" title="รหัสผ่าน" required>
+                  </label>
+                </fieldset>
+                <fieldset class="accept_term">
+                  <label><input type=checkbox name=login_remember id=login_remember value="1">จดจำการเข้าระบบ</label>
+                  <button type=submit class="button login wide">เข้าสู่ระบบ</button>
+                </fieldset>
+              </form>
+            </article>
         </main>
       </div>
     </div>
