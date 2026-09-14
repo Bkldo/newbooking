@@ -18,13 +18,52 @@
   <script src="js/calendar.js"></script>
   <script src="app.js"></script>
 
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
     /* CSS เพิ่มเติมสำหรับการทำ SPA */
     .hidden { display: none !important; }
+
+    /* Custom Blue Theme */
+    .header, .footer, .menu_bg { background-color: #007bff !important; color: white !important; }
+    .header a, .footer p { color: white !important; }
+    .header h1 a { color: white !important; text-shadow: none; }
+    .scroller { background-color: #0056b3 !important; color: white !important; }
+
+    /* Loading Spinner Overlay */
+    #loading-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(255, 255, 255, 0.7);
+        z-index: 9999;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+    #loading-overlay.active {
+        display: flex;
+    }
+    .spinner {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #007bff;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 
 <body class="responsive">
+  <!-- Loading Overlay -->
+  <div id="loading-overlay">
+      <div class="spinner"></div>
+  </div>
   <div id="slidemenu_content">
     <div class="wrapper bg_image bg_color" id="toTop">
       <header class="header" id="scroll-to">

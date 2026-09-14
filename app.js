@@ -19,6 +19,31 @@ const App = {
             Date.yearOffset = 543;
         }
 
+        // Override window.alert ด้วย SweetAlert2
+        window.alert = function(msg) {
+            if (window.Swal) {
+                Swal.fire({
+                    text: msg,
+                    icon: 'info',
+                    confirmButtonColor: '#007bff'
+                });
+            } else {
+                console.log("Alert:", msg); // Fallback
+            }
+        };
+
+        // ตั้งค่า Spinner (Global Fetch override)
+        const originalFetch = window.fetch;
+        window.fetch = async function() {
+            App.showLoading();
+            try {
+                const response = await originalFetch.apply(this, arguments);
+                return response;
+            } finally {
+                App.hideLoading();
+            }
+        };
+
         // ตรวจสอบสถานะล็อกอิน
         this.checkLogin();
 
@@ -27,6 +52,16 @@ const App = {
             window.addEventListener('hashchange', () => this.route());
             this.route();
         }
+    },
+
+    showLoading: function() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.classList.add('active');
+    },
+
+    hideLoading: function() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.classList.remove('active');
     },
 
     checkLogin: function() {
