@@ -19,16 +19,17 @@ const App = {
             Date.yearOffset = 543;
         }
 
-        // Override window.alert ด้วย SweetAlert2
+        // Override window.alert ด้วย SweetAlert2 (return promise เพื่อให้ await ได้)
         window.alert = function(msg) {
             if (window.Swal) {
-                Swal.fire({
+                return Swal.fire({
                     text: msg,
                     icon: 'info',
                     confirmButtonColor: '#007bff'
                 });
             } else {
                 console.log("Alert:", msg); // Fallback
+                return Promise.resolve();
             }
         };
 
@@ -81,17 +82,29 @@ const App = {
         const settingsMenu = document.getElementById('menu-settings');
         
         if (this.user) {
+            const isAdmin = this.user.status == 1;
+            const canApprove = this.user.permission && this.user.permission.includes('can_approve_room');
+            const hasPrivilege = isAdmin || canApprove;
+
             if (loginMenu) loginMenu.classList.add('hidden');
             if (logoutMenu) logoutMenu.classList.remove('hidden');
             if (bookingMenu) bookingMenu.classList.remove('hidden');
             if (reportMenu) reportMenu.classList.remove('hidden');
-            if (memberMenu) memberMenu.classList.remove('hidden');
-            if (settingsMenu) {
-                if (this.user.status == 1) {
-                    settingsMenu.classList.remove('hidden');
-                } else {
-                    settingsMenu.classList.add('hidden');
+            
+            // เปลี่ยนชื่อเมนูตามสิทธิ์
+            if (reportMenu) {
+                const reportLink = reportMenu.querySelector('a span');
+                if (reportLink) {
+                    reportLink.textContent = hasPrivilege ? 'รายงานการจอง' : 'รายการจองของฉัน';
                 }
+            }
+            
+            if (hasPrivilege) {
+                if (memberMenu) memberMenu.classList.remove('hidden');
+                if (settingsMenu) settingsMenu.classList.remove('hidden');
+            } else {
+                if (memberMenu) memberMenu.classList.add('hidden');
+                if (settingsMenu) settingsMenu.classList.add('hidden');
             }
         } else {
             if (loginMenu) loginMenu.classList.remove('hidden');
@@ -112,6 +125,11 @@ const App = {
     navigate: function(page) {
         const contentDiv = document.getElementById('main-content');
         if (!contentDiv) return;
+
+        // ปิด SweetAlert2 ที่ค้างอยู่ก่อนเปลี่ยนหน้า
+        if (window.Swal && Swal.isVisible && Swal.isVisible()) {
+            Swal.close();
+        }
 
         // เปลี่ยน Hash บน URL (ถ้ายังไม่ตรง)
         if (window.location.hash !== '#' + page) {
@@ -497,7 +515,7 @@ const App = {
             
             const result = await response.json();
             if (result.status === 'success') {
-                alert('บันทึกการจองสำเร็จ');
+                await alert('บันทึกการจองสำเร็จ');
                 this.navigate('home');
             } else {
                 alert('เกิดข้อผิดพลาด: ' + result.message);
